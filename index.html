@@ -418,55 +418,56 @@
         </div>
     );
 }
-       
-         
-                          if (gameState === 'quiz') {
+            if (gameState === 'quiz') {
     const q = questions[currentQIndex];
     return (
-        <div className="flex flex-col min-h-screen py-3 px-4 justify-between animate-fade-in">
-            {/* 進捗バー：スリム化 */}
-            <div className="w-full max-w-sm mx-auto">
-                <div className="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
+        <div className="flex flex-col h-screen p-4 overflow-hidden">
+            {/* 進捗バー：固定の高さ */}
+            <div className="flex-none w-full max-w-sm mx-auto mb-2">
+                <div className="flex justify-between text-xs font-bold text-gray-400 mb-1">
                     <span>Q{currentQIndex + 1}</span>
                     <span>{currentQIndex + 1}/7</span>
                 </div>
                 <div className="h-2 bg-white rounded-full overflow-hidden border border-pink-100">
-                    <div className="h-full bg-pink-400 transition-all duration-300 rounded-full" style={{ width: `${((currentQIndex + 1) / 7) * 100}%` }}></div>
+                    <div className="h-full bg-pink-400 transition-all duration-300" style={{ width: `${((currentQIndex + 1) / 7) * 100}%` }}></div>
                 </div>
             </div>
 
-            {/* 画像エリア：縦幅を抑えて配置 */}
-            <div className="w-full max-w-[240px] aspect-square mx-auto my-2 bg-white/50 rounded-2xl border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
-                <SmartImage 
-                    src={`q${q.id}.png`} 
-                    alt={`Q${q.id}`} 
-                    fallbackText="Image"
-                    className="w-full h-full object-cover" 
-                />
-            </div>
-            
-            {/* 質問文：余白を詰める */}
-            <div className="w-full max-w-sm mx-auto bg-purple-50 border-2 border-purple-100 rounded-2xl p-3 mb-3">
-                <h2 className="text-lg font-bold text-center text-deep-brown leading-snug whitespace-pre-wrap">
-                    {q.text}
-                </h2>
-            </div>
+            {/* コンテンツエリア：残りのスペースを有効活用 */}
+            <div className="flex-1 flex flex-col justify-center min-h-0 max-w-sm mx-auto w-full gap-y-3">
+                {/* 画像：高さを柔軟に */}
+                <div className="flex-1 min-h-0 aspect-square mx-auto bg-white/50 rounded-2xl border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
+                    <SmartImage 
+                        src={`q${q.id}.png`} 
+                        alt={`Q${q.id}`} 
+                        className="w-full h-full object-contain" 
+                    />
+                </div>
+                
+                {/* 質問文 */}
+                <div className="flex-none bg-purple-50 border-2 border-purple-100 rounded-2xl p-3">
+                    <h2 className="text-lg font-bold text-center text-deep-brown leading-snug whitespace-pre-wrap">
+                        {q.text}
+                    </h2>
+                </div>
 
-            {/* 選択肢ボタン：高さを抑える */}
-            <div className="w-full max-w-sm mx-auto space-y-2 mb-2">
-                {q.options.map((opt, i) => (
-                    <button 
-                        key={i} 
-                        onClick={() => handleAnswer(opt.point)} 
-                        className="w-full bg-white text-deep-brown font-bold py-3 px-4 rounded-xl shadow-sm border-2 border-white hover:border-pink-200 transition-all text-sm leading-relaxed"
-                    >
-                        {opt.text}
-                    </button>
-                ))}
+                {/* 選択肢ボタン */}
+                <div className="flex-none space-y-2">
+                    {q.options.map((opt, i) => (
+                        <button 
+                            key={i} 
+                            onClick={() => handleAnswer(opt.point)} 
+                            className="w-full bg-white text-deep-brown font-bold py-3 px-4 rounded-xl shadow-sm border-2 border-white active:bg-pink-50 transition-all text-sm"
+                        >
+                            {opt.text}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );
 }
+    
                 
             if (gameState === 'analyzing') {
                 return (
