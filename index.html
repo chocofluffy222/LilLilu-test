@@ -296,6 +296,28 @@
                 </div>
             );
         };
+        // どこか適当な場所（例えば他のコンポーネントの定義の後など）に追記
+const AnalyzingAnimation = () => {
+    const [index, setIndex] = useState(0);
+    const chars = Object.values(CHARACTERS);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setIndex((prev) => (prev + 1) % chars.length);
+        }, 400);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg animate-pulse">
+            <img 
+                src={chars[index].img} 
+                alt="Analyzing" 
+                className="w-full h-full object-cover" 
+            />
+        </div>
+    );
+};
 
         const App = () => {
             const [gameState, setGameState] = useState('start');
@@ -481,7 +503,7 @@
                 return (
                     <div className="flex flex-col items-center justify-center min-h-screen relative overflow-hidden">
                         <div className="relative z-10 text-center flex flex-col items-center">
-                            <PictureBookWand />
+                            <AnalyzingAnimation />
                             <h2 className="text-3xl font-bold text-deep-brown mt-8 animate-pulse">分析中...</h2>
                         </div>
                     </div>
