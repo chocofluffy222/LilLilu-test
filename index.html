@@ -2,20 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" ="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ピエロのリルリルと仲間たち診断</title>
     
     <!-- OGP設定（LINEシェア用） -->
-   <meta property="og:title" content="ピエロのリルリルと仲間たち診断" />
-　　<meta property="og:description" content="あなたの隠れた魅力はなんだ！？あなたにぴったりの7つの質問で診断するよ♡" />
+   <meta property="og:title" ="ピエロのリルリルと仲間たち診断" />
+　　<meta property="og:description" ="あなたの隠れた魅力はなんだ！？あなたにぴったりの7つの質問で診断するよ♡" />
 
-　　<meta property="og:type" content="website" />
+　　<meta property="og:type" ="website" />
 
-　　<meta property="og:url" content="https://chocofluffy222.github.io/LilLilu-hiddencharm2026/" />
+　　<meta property="og:url" ="https://chocofluffy222.github.io/LilLilu-hiddencharm2026/" />
 
-　　<meta property="og:image" content="https://chocofluffy222.github.io/LilLilu-hiddencharm2026/cover.png" />
+　　<meta property="og:image" ="https://chocofluffy222.github.io/LilLilu-hiddencharm2026/cover.png" />
 
-　　<meta name="twitter:card" content="summary_large_image" />
+　　<meta name="twitter:card" ="summary_large_image" />
     
     <!-- React & ReactDOM (CDN) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -386,9 +386,9 @@ const AnalyzingAnimation = () => {
                     setPieData(data);
                     setGameState('result');
                 }, 3000);
-            };
-
-          const shareResult = async (platform) => {
+            
+};
+            const shareResult = (platform) => {
     const emojiMap = {
         lillilu: "🤡",
         rosie: "🐰",
@@ -408,7 +408,11 @@ const AnalyzingAnimation = () => {
         })
         .join("\n");
 
-    const text = `私のタイプは【${resultChar.nameJp}】でした✨
+    const pageUrl =
+        "https://chocofluffy222.github.io/LilLilu-hiddencharm2026/?v=3";
+
+    const shareText = `✨診断タイプ
+【${resultChar.nameJp}】
 
 🌸隠れた魅力
 ${resultChar.hiddenCharm}
@@ -416,80 +420,25 @@ ${resultChar.hiddenCharm}
 📊あなたの中にいる仲間たち
 ${ranking}
 
-#リルリルと仲間たち診断`;
+#リルリルと仲間たち診断
 
-    const url = window.location.href;
+${pageUrl}`;
 
     if (platform === "line") {
-        try {
-            // cover.pngを読み込む
-            const response = await fetch("cover.png");
+        const lineShareUrl =
+            `https://line.me/R/msg/text/?${encodeURIComponent(shareText)}`;
 
-            if (!response.ok) {
-                throw new Error("cover.pngを読み込めませんでした");
-            }
-
-            const blob = await response.blob();
-
-            // 画像を共有用ファイルに変換
-            const imageFile = new File(
-                [blob],
-                "LilLilu-diagnosis-cover.png",
-                {
-                    type: blob.type || "image/png"
-                }
-            );
-
-            const shareData = {
-                title: "ピエロのリルリルと仲間たち診断",
-                text: text,
-                url: url,
-                files: [imageFile]
-            };
-
-            // 画像付き共有に対応している場合
-            if (
-                navigator.share &&
-                navigator.canShare &&
-                navigator.canShare({ files: [imageFile] })
-            ) {
-                await navigator.share(shareData);
-                return;
-            }
-
-            // 画像付き共有に対応していない場合はテキスト共有
-            const lineText = `${text}\n\n${url}`;
-
-            window.open(
-                `https://line.me/R/msg/text/?${encodeURIComponent(lineText)}`,
-                "_blank"
-            );
-
-        } catch (error) {
-            console.error(error);
-
-            // エラー時もテキスト共有に切り替える
-            const lineText = `${text}\n\n${url}`;
-
-            window.open(
-                `https://line.me/R/msg/text/?${encodeURIComponent(lineText)}`,
-                "_blank"
-            );
-        }
-
+        window.location.href = lineShareUrl;
         return;
     }
 
     if (platform === "threads") {
-        const threadsText = `${text}\n\n${url}`;
-
-        window.open(
+        const threadsShareUrl =
             `https://www.threads.net/intent/post?text=${encodeURIComponent(
-                threadsText
-            )}`,
-            "_blank"
-        );
+                shareText
+            )}`;
 
+        window.open(threadsShareUrl, "_blank");
         return;
     }
 
