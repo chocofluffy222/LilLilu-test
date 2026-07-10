@@ -384,7 +384,7 @@ const AnalyzingAnimation = () => {
                 }, 3000);
             };
 
-           const shareResult = (platform) => {
+          const shareResult = async (platform) => {
     const emojiMap = {
         lillilu: "🤡",
         rosie: "🐰",
@@ -399,6 +399,7 @@ const AnalyzingAnimation = () => {
         .sort((a, b) => b[1] - a[1])
         .map(([key, value]) => {
             const percent = Math.round((value / 7) * 100);
+
             return `${emojiMap[key]} ${CHARACTERS[key].nameJp}：${percent}%`;
         })
         .join("\n");
@@ -414,24 +415,84 @@ ${ranking}
 #リルリルと仲間たち診断`;
 
     const url = window.location.href;
-    let shareUrl = "";
 
     if (platform === "line") {
-        shareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
-            text + "\n\n" + url
-        )}`;
-    } else if (platform === "threads") {
-        shareUrl = `https://www.threads.net/intent/post?text=${encodeURIComponent(
-            text + "\n\n" + url
-        )}`;
-    } else if (platform === "instagram") {
-        alert("スクリーンショットを撮ってストーリーにシェアしてね！");
+        try {
+            // cover.pngを読み込む
+            const response = await fetch("cover.png");
+
+            if (!response.ok) {
+                throw new Error("cover.pngを読み込めませんでした");
+            }
+
+            const blob = await response.blob();
+
+            // 画像を共有用ファイルに変換
+            const imageFile = new File(
+                [blob],
+                "LilLilu-diagnosis-cover.png",
+                {
+                    type: blob.type || "image/png"
+                }
+            );
+
+            const shareData = {
+                title: "ピエロのリルリルと仲間たち診断",
+                text: text,
+                url: url,
+                files: [imageFile]
+            };
+
+            // 画像付き共有に対応している場合
+            if (
+                navigator.share &&
+                navigator.canShare &&
+                navigator.canShare({ files: [imageFile] })
+            ) {
+                await navigator.share(shareData);
+                return;
+            }
+
+            // 画像付き共有に対応していない場合はテキスト共有
+            const lineText = `${text}\n\n${url}`;
+
+            window.open(
+                `https://line.me/R/msg/text/?${encodeURIComponent(lineText)}`,
+                "_blank"
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            // エラー時もテキスト共有に切り替える
+            const lineText = `${text}\n\n${url}`;
+
+            window.open(
+                `https://line.me/R/msg/text/?${encodeURIComponent(lineText)}`,
+                "_blank"
+            );
+        }
+
         return;
     }
 
-    window.open(shareUrl, "_blank");
-};
+    if (platform === "threads") {
+        const threadsText = `${text}\n\n${url}`;
 
+        window.open(
+            `https://www.threads.net/intent/post?text=${encodeURIComponent(
+                threadsText
+            )}`,
+            "_blank"
+        );
+
+        return;
+    }
+
+    if (platform === "instagram") {
+        alert("スクリーンショットを撮ってストーリーにシェアしてね！");
+    }
+};
             const openInstagram = () => {
                 window.open("https://www.instagram.com/chocofluffy_222/", "_blank");
             };
