@@ -344,7 +344,58 @@ const AnalyzingAnimation = () => {
                 // 画像ファイル (lillilu.png など) をindex.htmlと同じフォルダに置く想定
                 return filename; 
             };
+// 各キャラクターの割合を、合計100％になるように計算
+const calculatePercentages = (scoreData) => {
+    const totalScore = Object.values(scoreData).reduce(
+        (sum, value) => sum + value,
+        0
+    );
 
+    const percentageData = Object.entries(scoreData).map(
+        ([key, value], index) => {
+            const exactPercent =
+                totalScore > 0 ? (value / totalScore) * 100 : 0;
+
+            const basePercent = Math.floor(exactPercent);
+
+            return {
+                key,
+                value,
+                index,
+                percent: basePercent,
+                remainder: exactPercent - basePercent
+            };
+        }
+    );
+
+    let remainingPercent =
+        100 -
+        percentageData.reduce(
+            (sum, item) => sum + item.percent,
+            0
+        );
+
+    percentageData
+        .sort((a, b) => {
+            if (b.remainder !== a.remainder) {
+                return b.remainder - a.remainder;
+            }
+
+            if (b.value !== a.value) {
+                return b.value - a.value;
+            }
+
+            return a.index - b.index;
+        })
+        .forEach((item) => {
+            if (remainingPercent > 0) {
+                item.percent += 1;
+                remainingPercent -= 1;
+            }
+        });
+
+    return percentageData;
+};
             const initGame = () => {
                 const shuffled = shuffleArray(ALL_QUESTIONS);
                 setQuestions(shuffled.slice(0, 7));
@@ -389,12 +440,26 @@ priorityOrder.forEach(key => {
 });
                     setResultChar(CHARACTERS[winnerKey]);
                     
-                    const data = Object.keys(CHARACTERS).map(key => ({
-                        id: key,
-                        name: CHARACTERS[key].nameJp,
-                        value: finalScores[key] || 0.1, 
-                        color: CHARACTERS[key].color
-                    }));
+                    const percentages = calculatePercentages(finalScores);
+
+const data = Object.keys(CHARACTERS).map(key => {
+    const percentageItem = percentages.find(
+        item => item.key === key
+    );
+
+    return {
+        id: key,
+        name: CHARACTERS[key].nameJp,
+
+        // 0点でも円グラフには少しだけ表示
+        value: finalScores[key] || 0.1,
+
+        // 表示用の正しい割合
+        percent: percentageItem ? percentageItem.percent : 0,
+
+        color: CHARACTERS[key].color
+    };
+});
                     setPieData(data);
                     setGameState('result');
                 }, 3000);
@@ -410,53 +475,7 @@ priorityOrder.forEach(key => {
         gigi: "🦒",
         levy: "🦄"
     };
-const totalScore = Object.values(scores).reduce(
-    (sum, value) => sum + value,
-    0
-);
-
-const percentageData = Object.entries(scores).map(
-    ([key, value], index) => {
-        const exactPercent =
-            totalScore > 0 ? (value / totalScore) * 100 : 0;
-
-        const basePercent = Math.floor(exactPercent);
-
-        return {
-            key,
-            value,
-            index,
-            percent: basePercent,
-            remainder: exactPercent - basePercent
-        };
-    }
-);
-
-let remainingPercent =
-    100 -
-    percentageData.reduce(
-        (sum, item) => sum + item.percent,
-        0
-    );
-
-percentageData
-    .sort((a, b) => {
-        if (b.remainder !== a.remainder) {
-            return b.remainder - a.remainder;
-        }
-
-        if (b.value !== a.value) {
-            return b.value - a.value;
-        }
-
-        return a.index - b.index;
-    })
-    .forEach((item) => {
-        if (remainingPercent > 0) {
-            item.percent += 1;
-            remainingPercent -= 1;
-        }
-    });
+const percentageData = calculatePercentages(scores);
 
 const ranking = percentageData
     .sort((a, b) => {
@@ -470,7 +489,6 @@ const ranking = percentageData
         return `${emojiMap[key]} ${CHARACTERS[key].nameJp}：${percent}%`;
     })
     .join("\n");
-    
 
     const text = `私のタイプは【${resultChar.nameJp}】でした✨
 
@@ -685,7 +703,9 @@ ${ranking}
                             <SimplePieChart 
                                 data={pieData} 
                                 activeId={resultChar.id} 
-                                onTouch={(d) => setTouchedPieName(`${d.name}: ${Math.round((d.value/7)*100)}%`)} 
+                                onTouch={(d) =>
+    setTouchedPieName(`${d.name}：${d.percent}%`)
+}
                             />
                             <div className="text-center mt-2 pointer-events-none">
                                 <span className="text-sm font-bold bg-white/80 px-2 py-1 rounded text-deep-brown mb-1">
