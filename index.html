@@ -368,15 +368,25 @@ const AnalyzingAnimation = () => {
             const calculateResult = (finalScores) => {
                 setGameState('analyzing');
                 setTimeout(() => {
-                    let maxScore = -1;
-                    let winnerKey = 'lillilu';
-                    const keys = shuffleArray(Object.keys(finalScores));
-                    keys.forEach(key => {
-                        if (finalScores[key] > maxScore) {
-                            maxScore = finalScores[key];
-                            winnerKey = key;
-                        }
-                    });
+                   const priorityOrder = [
+    "lillilu",
+    "rosie",
+    "finn",
+    "bonbon",
+    "espie",
+    "gigi",
+    "levy"
+];
+
+let maxScore = -1;
+let winnerKey = priorityOrder[0];
+
+priorityOrder.forEach(key => {
+    if (finalScores[key] > maxScore) {
+        maxScore = finalScores[key];
+        winnerKey = key;
+    }
+});
                     setResultChar(CHARACTERS[winnerKey]);
                     
                     const data = Object.keys(CHARACTERS).map(key => ({
