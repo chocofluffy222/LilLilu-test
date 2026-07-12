@@ -341,7 +341,7 @@ const AnalyzingAnimation = () => {
                 return newArray;
             };
 
-           const PRIORITY_ORDER = [
+          const PRIORITY_ORDER = [
     "lillilu",
     "rosie",
     "finn",
@@ -354,10 +354,8 @@ const AnalyzingAnimation = () => {
 const getImageUrl = (filename, name, color) => {
     return filename;
 };
-                // 画像ファイル (lillilu.png など) をindex.htmlと同じフォルダに置く想定
-                return filename; 
-            };
-// 各キャラクターの割合を、合計100％になるように計算
+
+// 各キャラクターの割合を合計100％になるように計算
 const calculatePercentages = (scoreData) => {
     const totalScore = Object.values(scoreData).reduce(
         (sum, value) => sum + value,
@@ -367,7 +365,9 @@ const calculatePercentages = (scoreData) => {
     const percentageData = Object.entries(scoreData).map(
         ([key, value], index) => {
             const exactPercent =
-                totalScore > 0 ? (value / totalScore) * 100 : 0;
+                totalScore > 0
+                    ? (value / totalScore) * 100
+                    : 0;
 
             const basePercent = Math.floor(exactPercent);
 
@@ -398,7 +398,10 @@ const calculatePercentages = (scoreData) => {
                 return b.value - a.value;
             }
 
-            return a.index - b.index;
+            return (
+                PRIORITY_ORDER.indexOf(a.key) -
+                PRIORITY_ORDER.indexOf(b.key)
+            );
         })
         .forEach((item) => {
             if (remainingPercent > 0) {
@@ -409,41 +412,46 @@ const calculatePercentages = (scoreData) => {
 
     return percentageData;
 };
-            const initGame = () => {
-                const shuffled = shuffleArray(ALL_QUESTIONS);
-                setQuestions(shuffled.slice(0, 7));
-                setScores({ lillilu: 0, rosie: 0, finn: 0, bonbon: 0, espie: 0, gigi: 0, levy: 0 });
-                setCurrentQIndex(0);
-                setGameState('quiz');
-                setResultChar(null);
-                setTouchedPieName('');
-            };
 
-            const handleAnswer = (pointChar) => {
-                const newScores = { ...scores, [pointChar]: scores[pointChar] + 1 };
-                setScores(newScores);
-                if (currentQIndex < questions.length - 1) {
-                    setTimeout(() => setCurrentQIndex(currentQIndex + 1), 250);
-                } else {
-                    calculateResult(newScores);
-                }
-            };
+const initGame = () => {
+    const shuffled = shuffleArray(ALL_QUESTIONS);
 
-            const calculateResult = (finalScores) => {
-    setGameState("analyzing");
+    setQuestions(shuffled.slice(0, 7));
 
-    setTimeout(() => {
-        let maxScore = -1;
-        let winnerKey = PRIORITY_ORDER[0];
+    setScores({
+        lillilu: 0,
+        rosie: 0,
+        finn: 0,
+        bonbon: 0,
+        espie: 0,
+        gigi: 0,
+        levy: 0
+    });
 
-        PRIORITY_ORDER.forEach((key) => {
-            if (finalScores[key] > maxScore) {
-                maxScore = finalScores[key];
-                winnerKey = key;
-            }
-        });
+    setCurrentQIndex(0);
+    setGameState("quiz");
+    setResultChar(null);
+    setTouchedPieName("");
+};
 
-       const calculateResult = (finalScores) => {
+const handleAnswer = (pointChar) => {
+    const newScores = {
+        ...scores,
+        [pointChar]: scores[pointChar] + 1
+    };
+
+    setScores(newScores);
+
+    if (currentQIndex < questions.length - 1) {
+        setTimeout(() => {
+            setCurrentQIndex(currentQIndex + 1);
+        }, 250);
+    } else {
+        calculateResult(newScores);
+    }
+};
+
+const calculateResult = (finalScores) => {
     setGameState("analyzing");
 
     setTimeout(() => {
@@ -459,7 +467,8 @@ const calculatePercentages = (scoreData) => {
 
         setResultChar(CHARACTERS[winnerKey]);
 
-        const percentages = calculatePercentages(finalScores);
+        const percentages =
+            calculatePercentages(finalScores);
 
         const data = Object.keys(CHARACTERS).map((key) => {
             const percentageItem = percentages.find(
@@ -469,10 +478,15 @@ const calculatePercentages = (scoreData) => {
             return {
                 id: key,
                 name: CHARACTERS[key].nameJp,
+
+                // 0点でも円グラフには少し表示
                 value: finalScores[key] || 0.1,
+
+                // 数字は正しい割合を表示
                 percent: percentageItem
                     ? percentageItem.percent
                     : 0,
+
                 color: CHARACTERS[key].color
             };
         });
@@ -481,7 +495,6 @@ const calculatePercentages = (scoreData) => {
         setGameState("result");
     }, 3000);
 };
-
 const shareResult = async (platform) => {
         });
 
